@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_coffee_machine_user,coffee.machine.user,model_coffee_machine,base.group_user,1,1,1,0
+access_coffee_machine_manager,coffee.machine.manager,model_coffee_machine,base.group_system,1,1,1,1
+access_coffee_maintenance_request_user,coffee.maintenance.request.user,model_coffee_maintenance_request,base.group_user,1,1,1,0
+access_coffee_maintenance_request_manager,coffee.maintenance.request.manager,model_coffee_maintenance_request,base.group_system,1,1,1,1

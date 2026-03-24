@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ===================== COFFEE MACHINE VIEWS ===================== -->
+
+    <!-- List View -->
+    <record id="view_coffee_machine_list" model="ir.ui.view">
+        <field name="name">coffee.machine.list</field>
+        <field name="model">coffee.machine</field>
+        <field name="arch" type="xml">
+            <tree string="Coffee Machines" decoration-danger="status == 'out_of_service'"
+                  decoration-warning="status == 'under_maintenance'"
+                  decoration-success="status == 'operational'">
+                <field name="name"/>
+                <field name="serial_number"/>
+                <field name="machine_type"/>
+                <field name="brand"/>
+                <field name="location"/>
+                <field name="status" widget="badge"
+                       decoration-success="status == 'operational'"
+                       decoration-warning="status == 'under_maintenance'"
+                       decoration-danger="status == 'out_of_service'"/>
+                <field name="last_maintenance_date"/>
+                <field name="next_maintenance_date"/>
+                <field name="maintenance_count" string="# Maintenance"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_coffee_machine_form" model="ir.ui.view">
+        <field name="name">coffee.machine.form</field>
+        <field name="model">coffee.machine</field>
+        <field name="arch" type="xml">
+            <form string="Coffee Machine">
+                <header>
+                    <button name="action_set_operational" string="Set Operational"
+                            type="object" class="btn-success"
+                            invisible="status == 'operational'"/>
+                    <button name="action_set_under_maintenance" string="Under Maintenance"
+                            type="object" class="btn-warning"
+                            invisible="status == 'under_maintenance'"/>
+                    <button name="action_set_out_of_service" string="Out of Service"
+                            type="object" class="btn-danger"
+                            invisible="status == 'out_of_service'"/>
+                    <field name="status" widget="statusbar"
+                           statusbar_visible="operational,under_maintenance,out_of_service"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_maintenance_requests"
+                                type="object" class="oe_stat_button" icon="fa-wrench">
+                            <field name="maintenance_count" widget="statinfo"
+                                   string="Maintenance"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Machine Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group string="Machine Details">
+                            <field name="serial_number"/>
+                            <field name="machine_type"/>
+                            <field name="brand"/>
+                            <field name="model_number"/>
+                            <field name="location"/>
+                        </group>
+                        <group string="Maintenance Schedule">
+                            <field name="purchase_date"/>
+                            <field name="warranty_expiry"/>
+                            <field name="last_maintenance_date"/>
+                            <field name="next_maintenance_date"/>
+                            <field name="maintenance_interval_days"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Notes">
+                            <field name="notes" placeholder="Additional notes about this machine..."/>
+                        </page>
+                        <page string="Maintenance History">
+                            <field name="maintenance_request_ids" readonly="1">
+                                  <tree string="Maintenance Requests"
+                                      decoration-success="state == 'done'"
+                                      decoration-warning="state == 'in_progress'"
+                                      decoration-muted="state == 'cancelled'">
+                                    <field name="name"/>
+                                    <field name="maintenance_type"/>
+                                    <field name="request_date"/>
+                                    <field name="technician_id"/>
+                                    <field name="priority" widget="priority"/>
+                                    <field name="state" widget="badge"
+                                           decoration-info="state == 'draft'"
+                                           decoration-warning="state == 'in_progress'"
+                                           decoration-success="state == 'done'"
+                                           decoration-danger="state == 'cancelled'"/>
+                                    <field name="cost"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_coffee_machine_kanban" model="ir.ui.view">
+        <field name="name">coffee.machine.kanban</field>
+        <field name="model">coffee.machine</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_small_column" default_group_by="status">
+                <field name="name"/>
+                <field name="serial_number"/>
+                <field name="machine_type"/>
+                <field name="brand"/>
+                <field name="location"/>
+                <field name="status"/>
+                <field name="maintenance_count"/>
+                <field name="next_maintenance_date"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click o_kanban_record_has_image_fill">
+                            <div class="o_kanban_card_header">
+                                <div class="o_kanban_card_header_title">
+                                    <div class="o_primary">
+                                        <strong><field name="name"/></strong>
+                                    </div>
+                                    <div class="o_secondary">
+                                        <field name="brand"/> — <field name="machine_type"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="o_kanban_card_content">
+                                <ul>
+                                    <li>📍 <field name="location"/></li>
+                                    <li>🔖 SN: <field name="serial_number"/></li>
+                                    <li>🔧 Maintenance: <field name="maintenance_count"/></li>
+                                    <li t-if="record.next_maintenance_date.value">
+                                        📅 Next: <field name="next_maintenance_date"/>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_coffee_machine_search" model="ir.ui.view">
+        <field name="name">coffee.machine.search</field>
+        <field name="model">coffee.machine</field>
+        <field name="arch" type="xml">
+            <search string="Search Coffee Machines">
+                <field name="name"/>
+                <field name="serial_number"/>
+                <field name="location"/>
+                <field name="brand"/>
+                <separator/>
+                <filter string="Operational" name="operational"
+                        domain="[('status','=','operational')]"/>
+                <filter string="Under Maintenance" name="under_maintenance"
+                        domain="[('status','=','under_maintenance')]"/>
+                <filter string="Out of Service" name="out_of_service"
+                        domain="[('status','=','out_of_service')]"/>
+                <separator/>
+                <filter string="Espresso Machines" name="espresso"
+                        domain="[('machine_type','=','espresso')]"/>
+                <filter string="Grinders" name="grinder"
+                        domain="[('machine_type','=','grinder')]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Location" name="group_location"
+                            context="{'group_by': 'location'}"/>
+                    <filter string="Machine Type" name="group_type"
+                            context="{'group_by': 'machine_type'}"/>
+                    <filter string="Status" name="group_status"
+                            context="{'group_by': 'status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_coffee_machine" model="ir.actions.act_window">
+        <field name="name">Coffee Machines</field>
+        <field name="res_model">coffee.machine</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="search_view_id" ref="view_coffee_machine_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register your first coffee machine!
+            </p>
+            <p>Track all coffee machines across your coffeeshop locations.</p>
+        </field>
+    </record>
+
+</odoo>

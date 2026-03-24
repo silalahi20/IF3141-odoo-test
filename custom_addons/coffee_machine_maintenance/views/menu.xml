@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =================== TOP-LEVEL MENU =================== -->
+    <menuitem id="menu_coffee_maintenance_root"
+              name="Coffee Maintenance"
+              sequence="50"
+              web_icon="coffee_machine_maintenance,static/description/icon.png"/>
+
+    <!-- ============= COFFEE MACHINES MENU ============= -->
+    <menuitem id="menu_coffee_machines"
+              name="Machines"
+              parent="menu_coffee_maintenance_root"
+              sequence="10"/>
+
+    <menuitem id="menu_coffee_machine_list"
+              name="All Machines"
+              parent="menu_coffee_machines"
+              action="action_coffee_machine"
+              sequence="10"/>
+
+    <!-- ============= MAINTENANCE MENU ============= -->
+    <menuitem id="menu_maintenance"
+              name="Maintenance"
+              parent="menu_coffee_maintenance_root"
+              sequence="20"/>
+
+    <menuitem id="menu_maintenance_all"
+              name="All Requests"
+              parent="menu_maintenance"
+              action="action_maintenance_request"
+              sequence="10"/>
+
+    <menuitem id="menu_maintenance_open"
+              name="Open Requests"
+              parent="menu_maintenance"
+              action="action_maintenance_request_open"
+              sequence="20"/>
+
+</odoo>
