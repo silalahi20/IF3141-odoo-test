@@ -18,11 +18,11 @@ if %errorlevel%==0 (
 	)
 )
 
+for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%I"
+
 set "OUT_FILE=%~1"
-if "%OUT_FILE%"=="" (
-	for /f %%I in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMdd_HHmmss"') do set "TS=%%I"
-	set "OUT_FILE=%DUMP_DIR%\odoo_backup_%TS%.dump"
-)
+if "%OUT_FILE%"=="" set "OUT_FILE=%DUMP_DIR%\odoo_backup_%TS%.dump"
+set "FS_FILE=%OUT_FILE:.dump=_filestore.tar.gz%"
 
 pushd "%PROJECT_DIR%" || exit /b 1
 if not exist "%DUMP_DIR%" mkdir "%DUMP_DIR%"
@@ -33,7 +33,12 @@ echo Starting db container...
 echo Exporting database to: %OUT_FILE%
 %DC% exec -T db pg_dump -U odoo -d postgres -Fc > "%OUT_FILE%" || goto :error
 
-echo Done. Backup file: %OUT_FILE%
+echo Exporting filestore to: %FS_FILE%
+%DC% run --rm -v odoo-web-data:/filestore alpine tar czf - -C /filestore . > "%FS_FILE%" || goto :error
+
+echo Done. Backup files:
+echo   DB:        %OUT_FILE%
+echo   Filestore: %FS_FILE%
 popd
 exit /b 0
 
